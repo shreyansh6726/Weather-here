@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Search, MapPin, Wind, Droplets, Sun, Cloud, CloudRain, 
-  CloudLightning, Snowflake, CloudDrizzle, Navigation, Heart, Sunrise, Sunset 
+  Search, Sun, Cloud, CloudRain, 
+  CloudLightning, Snowflake, Navigation, Heart, Sunrise, Sunset 
 } from 'lucide-react';
 
 const locationData = {
@@ -34,7 +34,6 @@ const WeatherApp = () => {
   const [selCountry, setSelCountry] = useState('');
   const [selCity, setSelCity] = useState('');
 
-  // Restored Smart Tips Logic
   const getActivityTip = () => {
     if (!weather) return "";
     const { temperature, weathercode } = weather.current_weather;
@@ -184,7 +183,6 @@ const WeatherApp = () => {
                   <div style={styles.gridItem}><Sunset size={12}/> {weather.daily.sunset[0].split('T')[1]}</div>
                 </div>
 
-                {/* RESTORED ACTIVITY TIP BOX */}
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={styles.tipBox}>
                   {getActivityTip()}
                 </motion.div>
