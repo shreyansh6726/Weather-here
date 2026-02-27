@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Search, Sun, Cloud, CloudRain, 
-  CloudLightning, Snowflake, Navigation, Heart, Sunrise, Sunset 
+import {
+  Search, Sun, Cloud, CloudRain,
+  CloudLightning, Snowflake, Navigation, Heart, Sunrise, Sunset
 } from 'lucide-react';
 
 const YouTubeLoader = () => (
@@ -22,7 +22,7 @@ const WeatherApp = () => {
   const [loading, setLoading] = useState(false);
   const [unit, setUnit] = useState('C');
   const [favorites, setFavorites] = useState([]);
-  
+
   const [countries, setCountries] = useState([]);
   const [cities, setCities] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState('');
@@ -43,8 +43,8 @@ const WeatherApp = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ country: selectedCountry })
       })
-      .then(res => res.json())
-      .then(data => setCities(data.data || []));
+        .then(res => res.json())
+        .then(data => setCities(data.data || []));
     } else {
       setCities([]);
     }
@@ -103,16 +103,26 @@ const WeatherApp = () => {
   const handleGeoLocation = () => {
     setLoading(true);
     navigator.geolocation.getCurrentPosition(async (pos) => {
-      setSelectedCity({ name: "My Location", lat: pos.coords.latitude, lon: pos.coords.longitude });
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+
+      try {
+        const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
+        const data = await res.json();
+        const cityName = data.city || data.locality || "My Location";
+        setSelectedCity({ name: cityName, lat, lon });
+      } catch (err) {
+        setSelectedCity({ name: "My Location", lat, lon });
+      }
     }, () => setLoading(false));
   };
 
   return (
     <div style={styles.container}>
-      <motion.div 
+      <motion.div
         animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0], backgroundColor: weather?.current_weather.temperature > 25 ? '#f59e0b' : '#3b82f6' }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        style={styles.blob} 
+        style={styles.blob}
       />
 
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 100 }} style={styles.glassCard}>
@@ -120,10 +130,10 @@ const WeatherApp = () => {
           <div style={styles.placeBadge}>{selectedCity.name}</div>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '15px', alignItems: 'center' }}>
             <div style={styles.toggle} onClick={() => setUnit(unit === 'C' ? 'F' : 'C')}>{unit}</div>
-            <Heart 
-              size={18} 
+            <Heart
+              size={18}
               onClick={() => favorites.find(f => f.name === selectedCity.name) ? setFavorites(favorites.filter(f => f.name !== selectedCity.name)) : setFavorites([...favorites, selectedCity])}
-              fill={favorites.find(f => f.name === selectedCity.name) ? "#ef4444" : "none"} 
+              fill={favorites.find(f => f.name === selectedCity.name) ? "#ef4444" : "none"}
               style={{ cursor: 'pointer' }}
             />
           </div>
@@ -140,9 +150,9 @@ const WeatherApp = () => {
             </div>
             <div style={{ flex: 1 }}>
               <p style={styles.label}>City</p>
-              <select 
+              <select
                 disabled={!selectedCountry}
-                style={{...styles.fullSelect, opacity: selectedCountry ? 1 : 0.4}} 
+                style={{ ...styles.fullSelect, opacity: selectedCountry ? 1 : 0.4 }}
                 onChange={(e) => handleCitySelection(e.target.value)}
               >
                 <option value="">{selectedCountry ? "Select..." : "Lock 🔒"}</option>
@@ -154,7 +164,7 @@ const WeatherApp = () => {
           <div style={styles.divider}><span>OR SEARCH GLOBAL</span></div>
 
           <div style={styles.searchBox}>
-            <Search size={16} opacity={0.4}/>
+            <Search size={16} opacity={0.4} />
             <input style={styles.input} placeholder="Type any city..." value={query} onChange={(e) => setQuery(e.target.value)} />
             <Navigation size={16} style={{ cursor: 'pointer' }} onClick={handleGeoLocation} />
           </div>
@@ -163,8 +173,8 @@ const WeatherApp = () => {
             {results.length > 0 && (
               <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={styles.dropdown}>
                 {results.map(c => (
-                  <div key={c.id} style={styles.dropItem} onClick={() => { setSelectedCity({name: c.name, lat: c.latitude, lon: c.longitude}); setResults([]); setQuery(''); }}>
-                    {c.name}, <span style={{fontSize: '10px', opacity: 0.5}}>{c.country}</span>
+                  <div key={c.id} style={styles.dropItem} onClick={() => { setSelectedCity({ name: c.name, lat: c.latitude, lon: c.longitude }); setResults([]); setQuery(''); }}>
+                    {c.name}, <span style={{ fontSize: '10px', opacity: 0.5 }}>{c.country}</span>
                   </div>
                 ))}
               </motion.div>
@@ -185,7 +195,7 @@ const WeatherApp = () => {
                   {getWeatherIcon(weather.current_weather.weathercode)}
                 </motion.div>
                 <motion.h1 variants={{ hidden: { scale: 0.8, opacity: 0 }, visible: { scale: 1, opacity: 1 } }} style={styles.bigTemp}>
-                  {unit === 'C' ? Math.round(weather.current_weather.temperature) : Math.round((weather.current_weather.temperature * 9/5) + 32)}°
+                  {unit === 'C' ? Math.round(weather.current_weather.temperature) : Math.round((weather.current_weather.temperature * 9 / 5) + 32)}°
                 </motion.h1>
                 <motion.div variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }} style={styles.sparklineContainer}>
                   <svg viewBox="0 0 200 40" style={styles.svg}>
@@ -193,8 +203,8 @@ const WeatherApp = () => {
                   </svg>
                 </motion.div>
                 <motion.div variants={{ hidden: { y: 10, opacity: 0 }, visible: { y: 0, opacity: 1 } }} style={styles.grid}>
-                  <div style={styles.gridItem}><Sunrise size={12}/> {weather.daily.sunrise[0].split('T')[1]}</div>
-                  <div style={styles.gridItem}><Sunset size={12}/> {weather.daily.sunset[0].split('T')[1]}</div>
+                  <div style={styles.gridItem}><Sunrise size={12} /> {weather.daily.sunrise[0].split('T')[1]}</div>
+                  <div style={styles.gridItem}><Sunset size={12} /> {weather.daily.sunset[0].split('T')[1]}</div>
                 </motion.div>
                 <motion.div variants={{ hidden: { y: 10, opacity: 0 }, visible: { y: 0, opacity: 1 } }} style={styles.tipBox}>{getActivityTip()}</motion.div>
               </motion.div>
